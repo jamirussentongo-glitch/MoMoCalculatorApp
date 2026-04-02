@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">MoMoCalculatorApp</string>
+    <string name="app_name">Ndejje MoMo Calc</string>
+    <string name="app_title">Ndejje MoMo Calc</string>
+    <string name="enter_amount">Enter Amount (UGX)</string>
+
+    <string name="fee_label">Withdrawal Fee: %1$s</string>
+    <string name="total_label">Total Amount: %1$s</string>
+
+    <string name="error_numbers_only">Please enter numbers only</string>
 </resources>
