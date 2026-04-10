@@ -4,24 +4,32 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -37,8 +45,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MoMoCalculatorAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MoMoCalculatorScreen(modifier = Modifier.padding(innerPadding))
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                ) { innerPadding ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        MoMoCalculatorScreen()
+                    }
                 }
             }
         }
@@ -55,51 +73,73 @@ fun MoMoCalculatorScreen(modifier: Modifier = Modifier) {
     val withdrawalFee = calculateWithdrawalFee(amount)
     val totalAmount = amount + withdrawalFee
 
-    // Formatter for UGX currency
     val formatter = NumberFormat.getCurrencyInstance(Locale("en", "UG")).apply {
         maximumFractionDigits = 0
     }
 
-    Column(modifier = modifier.padding(16.dp)) {
-        Text(
-            text = stringResource(id = R.string.app_title),
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
+    // Curved Frame/Surface for the calculator
+    Surface(
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(32.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 12.dp,
+        tonalElevation = 8.dp
+    ) {
+        Column(modifier = Modifier.padding(24.dp)) {
+            Text(
+                text = stringResource(id = R.string.app_title),
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
 
-        HoistedAmountInput(
-            amount = amountInput,
-            onAmountChange = { amountInput = it },
-            isError = isError
-        )
+            HoistedAmountInput(
+                amount = amountInput,
+                onAmountChange = { amountInput = it },
+                isError = isError
+            )
 
-        Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        if (!isError && amount > 0) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = stringResource(id = R.string.fee_label, formatter.format(withdrawalFee)),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.secondary
-                )
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                HorizontalDivider()
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Text(
-                    text = stringResource(id = R.string.total_label, formatter.format(totalAmount)),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                
-                Text(
-                    text = "(Amount + Withdrawal Fee)",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
+            if (!isError && amount > 0) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
+                    )
+                ) {
+                    Column(modifier = Modifier.padding(20.dp)) {
+                        Text(
+                            text = stringResource(id = R.string.fee_label, formatter.format(withdrawalFee)),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = stringResource(id = R.string.total_label, formatter.format(totalAmount)),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+
+                        Text(
+                            text = "(Amount + Withdrawal Fee)",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
             }
+            
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -108,14 +148,13 @@ fun MoMoCalculatorScreen(modifier: Modifier = Modifier) {
 fun HoistedAmountInput(
     amount: String,
     onAmountChange: (String) -> Unit,
-    isError: Boolean = false,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isError: Boolean = false
 ) {
     Column(modifier = modifier) {
         TextField(
             value = amount,
-            onValueChange = { 
-                // Only allow digits to keep it simple
+            onValueChange = {
                 if (it.all { char -> char.isDigit() }) {
                     onAmountChange(it)
                 }
@@ -125,6 +164,12 @@ fun HoistedAmountInput(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
+            shape = RoundedCornerShape(16.dp),
+            colors = TextFieldDefaults.colors(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                errorIndicatorColor = Color.Transparent
+            ),
             supportingText = {
                 if (isError) {
                     Text(
@@ -165,6 +210,8 @@ fun calculateWithdrawalFee(amount: Int): Int {
 @Composable
 fun PreviewCalculator() {
     MoMoCalculatorAppTheme {
-        MoMoCalculatorScreen()
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            MoMoCalculatorScreen()
+        }
     }
 }
