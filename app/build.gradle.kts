@@ -5,9 +5,7 @@ plugins {
 
 android {
     namespace = "com.ndejje.momocal"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.ndejje.momocal"

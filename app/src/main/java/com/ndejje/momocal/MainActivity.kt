@@ -4,13 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
@@ -29,7 +35,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -47,7 +56,7 @@ class MainActivity : ComponentActivity() {
             MoMoCalculatorAppTheme {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
                 ) { innerPadding ->
                     Box(
                         modifier = Modifier
@@ -73,28 +82,45 @@ fun MoMoCalculatorScreen(modifier: Modifier = Modifier) {
     val withdrawalFee = calculateWithdrawalFee(amount)
     val totalAmount = amount + withdrawalFee
 
-    val formatter = NumberFormat.getCurrencyInstance(Locale("en", "UG")).apply {
+    val formatter = NumberFormat.getCurrencyInstance(Locale.Builder().setLanguage("en").setRegion("UG").build()).apply {
         maximumFractionDigits = 0
     }
 
-    // Curved Frame/Surface for the calculator
+    // Bold Curved Frame/Surface for the calculator
     Surface(
         modifier = modifier
             .padding(16.dp)
             .fillMaxWidth(),
         shape = RoundedCornerShape(32.dp),
         color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 12.dp,
-        tonalElevation = 8.dp
+        shadowElevation = 24.dp, // High elevation for "bold" surface pop
+        tonalElevation = 12.dp,
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)) // Bold border
     ) {
         Column(modifier = Modifier.padding(24.dp)) {
-            Text(
-                text = stringResource(id = R.string.app_title),
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+            // Header with Logo and Title
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(bottom = 24.dp)
-            )
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.mine2),
+                    contentDescription = "App Logo",
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                
+                Spacer(modifier = Modifier.width(16.dp))
+                
+                Text(
+                    text = stringResource(id = R.string.app_title),
+                    style = MaterialTheme.typography.headlineLarge, // Larger title
+                    fontWeight = FontWeight.ExtraBold, // Bolder title
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
 
             HoistedAmountInput(
                 amount = amountInput,
@@ -102,37 +128,43 @@ fun MoMoCalculatorScreen(modifier: Modifier = Modifier) {
                 isError = isError
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             if (!isError && amount > 0) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(24.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.4f)
-                    )
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f)
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Text(
                             text = stringResource(id = R.string.fee_label, formatter.format(withdrawalFee)),
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
 
-                        Spacer(modifier = Modifier.height(12.dp))
-                        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
+                        HorizontalDivider(
+                            thickness = 2.dp,
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
 
                         Text(
                             text = stringResource(id = R.string.total_label, formatter.format(totalAmount)),
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.ExtraBold,
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Black, // Extremely bold total
                             color = MaterialTheme.colorScheme.primary
                         )
 
                         Text(
                             text = "(Amount + Withdrawal Fee)",
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -159,11 +191,17 @@ fun HoistedAmountInput(
                     onAmountChange(it)
                 }
             },
-            label = { Text(stringResource(id = R.string.enter_amount)) },
+            label = { 
+                Text(
+                    text = stringResource(id = R.string.enter_amount),
+                    fontWeight = FontWeight.Bold 
+                ) 
+            },
             isError = isError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
             shape = RoundedCornerShape(16.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
@@ -175,6 +213,7 @@ fun HoistedAmountInput(
                     Text(
                         text = stringResource(id = R.string.error_numbers_only),
                         color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
