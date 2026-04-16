@@ -1,5 +1,6 @@
 package com.ndejje.momocal
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,7 +19,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -64,14 +64,9 @@ class MainActivity : ComponentActivity() {
                     Scaffold(
                         topBar = { MoMoTopBar() }
                     ) { innerPadding ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(innerPadding),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            MoMoCalculatorScreen()
-                        }
+                        MoMoCalcScreen(
+                            modifier = Modifier.padding(innerPadding)
+                        )
                     }
                 }
             }
@@ -109,7 +104,7 @@ fun MoMoTopBar() {
 }
 
 @Composable
-fun MoMoCalculatorScreen(modifier: Modifier = Modifier) {
+fun MoMoCalcScreen(modifier: Modifier = Modifier) {
     var amountInput by remember { mutableStateOf("") }
 
     val amount = amountInput.toIntOrNull() ?: 0
@@ -122,102 +117,107 @@ fun MoMoCalculatorScreen(modifier: Modifier = Modifier) {
         maximumFractionDigits = 0
     }
 
-    Surface(
+    Column(
         modifier = modifier
-            .padding(dimensionResource(id = R.dimen.spacing_medium))
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(32.dp),
-        color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 24.dp,
-        tonalElevation = 12.dp,
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
+            .fillMaxSize()
+            .padding(dimensionResource(id = R.dimen.screen_padding)),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Column(
-            modifier = Modifier
-                .padding(dimensionResource(id = R.dimen.screen_padding))
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.large,
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 24.dp,
+            tonalElevation = 12.dp,
+            border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.spacing_large))
+            Column(
+                modifier = Modifier
+                    .padding(dimensionResource(id = R.dimen.screen_padding))
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.mine),
-                    contentDescription = "App Logo",
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-                
-                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_medium)))
-                
-                Text(
-                    text = stringResource(id = R.string.app_title),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            HoistedAmountInput(
-                amount = amountInput,
-                onAmountChange = { amountInput = it },
-                isError = isError,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_large)))
-
-            if (!isError && amount > 0) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f)
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.spacing_large))
                 ) {
-                    Column(
-                        modifier = Modifier.padding(dimensionResource(id = R.dimen.spacing_medium)),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Image(
+                        painter = painterResource(id = R.drawable.mine),
+                        contentDescription = "App Logo",
+                        modifier = Modifier
+                            .size(64.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                    
+                    Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_medium)))
+                    
+                    Text(
+                        text = stringResource(id = R.string.app_title),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                HoistedAmountInput(
+                    amount = amountInput,
+                    onAmountChange = { amountInput = it },
+                    isError = isError,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_large)))
+
+                if (!isError && amount > 0) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = MaterialTheme.shapes.medium,
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.15f)
+                        ),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                     ) {
-                        Text(
-                            text = stringResource(id = R.string.fee_label, formatter.format(withdrawalFee.toLong())),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            textAlign = TextAlign.Center
-                        )
+                        Column(
+                            modifier = Modifier.padding(dimensionResource(id = R.dimen.spacing_medium)),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.fee_label, formatter.format(withdrawalFee.toLong())),
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                textAlign = TextAlign.Center
+                            )
 
-                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
-                        HorizontalDivider(
-                            thickness = 2.dp,
-                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
-                        )
-                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
+                            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
+                            HorizontalDivider(
+                                thickness = 2.dp,
+                                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                            )
+                            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
 
-                        Text(
-                            text = stringResource(id = R.string.total_label, formatter.format(totalAmount.toLong())),
-                            style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.primary,
-                            textAlign = TextAlign.Center
-                        )
+                            Text(
+                                text = stringResource(id = R.string.total_label, formatter.format(totalAmount.toLong())),
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = MaterialTheme.colorScheme.primary,
+                                textAlign = TextAlign.Center
+                            )
 
-                        Text(
-                            text = "(Amount + Withdrawal Fee)",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center
-                        )
+                            Text(
+                                text = "(Amount + Withdrawal Fee)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
+                
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
             }
-            
-            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
         }
     }
 }
@@ -248,22 +248,20 @@ fun HoistedAmountInput(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             textStyle = MaterialTheme.typography.bodyLarge,
-            shape = RoundedCornerShape(16.dp),
+            shape = MaterialTheme.shapes.small,
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 errorIndicatorColor = Color.Transparent
-            ),
-            supportingText = {
-                if (isError) {
-                    Text(
-                        text = stringResource(id = R.string.error_numbers_only),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                }
-            }
+            )
         )
+        if (isError) {
+            Text(
+                text = stringResource(id = R.string.error_numbers_only),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
     }
 }
 
@@ -287,12 +285,37 @@ fun calculateWithdrawalFee(amount: Int): Int {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(name = "Light Mode", showBackground = true)
 @Composable
-fun PreviewCalculator() {
+fun PreviewLight() {
+    MoMoAppTheme(darkTheme = false) {
+        MoMoCalcScreen()
+    }
+}
+
+@Preview(
+    name = "Dark Mode",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun PreviewDark() {
+    MoMoAppTheme(darkTheme = true) {
+        MoMoCalcScreen()
+    }
+}
+
+@Preview(name = "Fee Card – Light", showBackground = true)
+@Preview(
+    name = "Fee Card – Dark",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES
+)
+@Composable
+fun PreviewFeeCard() {
     MoMoAppTheme {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            MoMoCalculatorScreen()
+        Surface(modifier = Modifier.padding(16.dp)) {
+            MoMoCalcScreen()
         }
     }
 }
