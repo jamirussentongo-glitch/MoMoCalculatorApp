@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -28,6 +31,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,13 +42,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ndejje.momocal.ui.theme.MoMoCalculatorAppTheme
+import com.ndejje.momocal.ui.theme.MoMoAppTheme
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -53,23 +59,53 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MoMoCalculatorAppTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
-                ) { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        MoMoCalculatorScreen()
+            MoMoAppTheme {
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    Scaffold(
+                        topBar = { MoMoTopBar() }
+                    ) { innerPadding ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            MoMoCalculatorScreen()
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MoMoTopBar() {
+    CenterAlignedTopAppBar(
+        title = {
+            Text(
+                text = stringResource(id = R.string.app_title),
+                style = MaterialTheme.typography.headlineMedium
+            )
+        },
+        navigationIcon = {
+            Image(
+                painter = painterResource(id = R.drawable.mine),
+                contentDescription = "MoMo Logo",
+                modifier = Modifier
+                    .padding(start = dimensionResource(id = R.dimen.spacing_medium))
+                    .size(40.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
+            )
+        },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary,
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    )
 }
 
 @Composable
@@ -82,29 +118,33 @@ fun MoMoCalculatorScreen(modifier: Modifier = Modifier) {
     val withdrawalFee = calculateWithdrawalFee(amount)
     val totalAmount = amount + withdrawalFee
 
-    val formatter = NumberFormat.getCurrencyInstance(Locale.Builder().setLanguage("en").setRegion("UG").build()).apply {
+    val formatter = NumberFormat.getCurrencyInstance(Locale("en", "UG")).apply {
         maximumFractionDigits = 0
     }
 
-    // Bold Curved Frame/Surface for the calculator
     Surface(
         modifier = modifier
-            .padding(16.dp)
+            .padding(dimensionResource(id = R.dimen.spacing_medium))
             .fillMaxWidth(),
         shape = RoundedCornerShape(32.dp),
         color = MaterialTheme.colorScheme.surface,
-        shadowElevation = 24.dp, // High elevation for "bold" surface pop
+        shadowElevation = 24.dp,
         tonalElevation = 12.dp,
-        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)) // Bold border
+        border = BorderStroke(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f))
     ) {
-        Column(modifier = Modifier.padding(24.dp)) {
-            // Header with Logo and Title
+        Column(
+            modifier = Modifier
+                .padding(dimensionResource(id = R.dimen.screen_padding))
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 24.dp)
+                modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.spacing_large))
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.mine2),
+                    painter = painterResource(id = R.drawable.mine),
                     contentDescription = "App Logo",
                     modifier = Modifier
                         .size(64.dp)
@@ -112,23 +152,25 @@ fun MoMoCalculatorScreen(modifier: Modifier = Modifier) {
                     contentScale = ContentScale.Crop
                 )
                 
-                Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_medium)))
                 
                 Text(
                     text = stringResource(id = R.string.app_title),
-                    style = MaterialTheme.typography.headlineLarge, // Larger title
-                    fontWeight = FontWeight.ExtraBold, // Bolder title
-                    color = MaterialTheme.colorScheme.primary
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center
                 )
             }
 
             HoistedAmountInput(
                 amount = amountInput,
                 onAmountChange = { amountInput = it },
-                isError = isError
+                isError = isError,
+                modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_large)))
 
             if (!isError && amount > 0) {
                 Card(
@@ -139,39 +181,43 @@ fun MoMoCalculatorScreen(modifier: Modifier = Modifier) {
                     ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
                 ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
+                    Column(
+                        modifier = Modifier.padding(dimensionResource(id = R.dimen.spacing_medium)),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Text(
-                            text = stringResource(id = R.string.fee_label, formatter.format(withdrawalFee)),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                            text = stringResource(id = R.string.fee_label, formatter.format(withdrawalFee.toLong())),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            textAlign = TextAlign.Center
                         )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
                         HorizontalDivider(
                             thickness = 2.dp,
                             color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
 
                         Text(
-                            text = stringResource(id = R.string.total_label, formatter.format(totalAmount)),
+                            text = stringResource(id = R.string.total_label, formatter.format(totalAmount.toLong())),
                             style = MaterialTheme.typography.headlineMedium,
-                            fontWeight = FontWeight.Black, // Extremely bold total
-                            color = MaterialTheme.colorScheme.primary
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
                         )
 
                         Text(
                             text = "(Amount + Withdrawal Fee)",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }
             }
             
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.spacing_medium)))
         }
     }
 }
@@ -194,14 +240,14 @@ fun HoistedAmountInput(
             label = { 
                 Text(
                     text = stringResource(id = R.string.enter_amount),
-                    fontWeight = FontWeight.Bold 
+                    style = MaterialTheme.typography.bodyMedium
                 ) 
             },
             isError = isError,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+            textStyle = MaterialTheme.typography.bodyLarge,
             shape = RoundedCornerShape(16.dp),
             colors = TextFieldDefaults.colors(
                 focusedIndicatorColor = Color.Transparent,
@@ -213,7 +259,6 @@ fun HoistedAmountInput(
                     Text(
                         text = stringResource(id = R.string.error_numbers_only),
                         color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -222,9 +267,6 @@ fun HoistedAmountInput(
     }
 }
 
-/**
- * Calculates MoMo withdrawal fee based on typical UGX tiers.
- */
 fun calculateWithdrawalFee(amount: Int): Int {
     return when (amount) {
         in 0..500 -> 0
@@ -248,7 +290,7 @@ fun calculateWithdrawalFee(amount: Int): Int {
 @Preview(showBackground = true)
 @Composable
 fun PreviewCalculator() {
-    MoMoCalculatorAppTheme {
+    MoMoAppTheme {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             MoMoCalculatorScreen()
         }
