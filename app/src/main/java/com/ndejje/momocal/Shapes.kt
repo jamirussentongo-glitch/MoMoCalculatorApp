@@ -4,8 +4,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
+// Fixed: Ensured comprehensive shape definitions for Material 3
 val MoMoShapes = Shapes(
-    small = RoundedCornerShape(8.dp),
-    medium = RoundedCornerShape(16.dp),
-    large = RoundedCornerShape(24.dp)
+    extraSmall = RoundedCornerShape(4.dp),   // chips, tooltips
+    small      = RoundedCornerShape(8.dp),   // TextField, buttons
+    medium     = RoundedCornerShape(16.dp),  // cards, dialogs
+    large      = RoundedCornerShape(24.dp),  // bottom sheets
+    extraLarge = RoundedCornerShape(28.dp)   // FABs, hero containers
 )

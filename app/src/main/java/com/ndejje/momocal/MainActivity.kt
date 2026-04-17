@@ -8,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -113,7 +112,7 @@ fun MoMoCalcScreen(modifier: Modifier = Modifier) {
     val withdrawalFee = calculateWithdrawalFee(amount)
     val totalAmount = amount + withdrawalFee
 
-    val formatter = NumberFormat.getCurrencyInstance(Locale("en", "UG")).apply {
+    val formatter = NumberFormat.getCurrencyInstance(Locale.Builder().setLanguage("en").setRegion("UG").build()).apply {
         maximumFractionDigits = 0
     }
 
